@@ -5,14 +5,13 @@ const MONGODB_PASSWORD = process.env.MONGODB_PASSWORD;
 
 const express = require("express");
 const mongoose = require("mongoose");
-const _ = require("lodash");
 
 const app = express();
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 mongoose.connect(
-  `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@cluster69854.lyy6og1.mongodb.net/todolistDB`
+  `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@cluster69854.lyy6og1.mongodb.net/todolistDB`,
 );
 
 const itemSchema = {
@@ -49,7 +48,7 @@ const defaultItems = [item1, item2, item3];
 // 		console.log("An error occured :" + err);
 // 	});
 
-app.get("/", function (req, res) {
+app.get("/", function(_, res) {
   Item.find()
     .then((foundItems) => {
       res.render("list", { listTitle: "Today", newListItems: foundItems });
@@ -59,7 +58,7 @@ app.get("/", function (req, res) {
     });
 });
 
-app.post("/", function (req, res) {
+app.post("/", function(req, res) {
   const itemName = req.body.newItem;
   const listName = req.body.list;
 
@@ -86,7 +85,7 @@ app.post("/", function (req, res) {
   }
 });
 
-app.post("/delete", function (req, res) {
+app.post("/delete", function(req, res) {
   const checkedItemID = req.body.checkbox;
   const listName = req.body.listName;
 
@@ -101,7 +100,7 @@ app.post("/delete", function (req, res) {
   } else {
     List.findOneAndUpdate(
       { name: listName },
-      { $pull: { items: { _id: checkedItemID } } }
+      { $pull: { items: { _id: checkedItemID } } },
     )
       .then(() => {
         res.redirect(`/${listName}`);
@@ -112,8 +111,8 @@ app.post("/delete", function (req, res) {
   }
 });
 
-app.get("/:customlistName", function (req, res) {
-  const customListName = _.capitalize(req.params.customlistName);
+app.get("/:customlistName", function(req, res) {
+  const customListName = req.params.customlistName;
 
   List.findOne({ name: customListName })
     .then((foundList) => {
@@ -140,6 +139,6 @@ app.get("/:customlistName", function (req, res) {
       console.log(err);
     });
 });
-app.listen(process.env.PORT || 3000, function () {
+app.listen(process.env.PORT || 3000, function() {
   console.log("Server has started");
 });
